@@ -1,0 +1,288 @@
+/* DMart Custom Color Scheme & Global Styles */
+:root {
+  --dmart-green: #00843D;
+  --dmart-green-dark: #00602c;
+  --dmart-green-light: #e8f5e9;
+  --dmart-orange: #f57c00;
+  --dmart-amber: #ff9800;
+  --dmart-red: #d32f2f;
+  --dmart-bg: #f4f6f8;
+  --dmart-text-dark: #212529;
+  --dmart-border: #e2e8f0;
+}
+
+body {
+  background-color: var(--dmart-bg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--dmart-text-dark);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Primary DMart Colors Overrides */
+.bg-dmart {
+  background-color: var(--dmart-green) !important;
+}
+
+.text-dmart {
+  color: var(--dmart-green) !important;
+}
+
+.btn-dmart {
+  background-color: var(--dmart-green);
+  color: #ffffff;
+  border: 1px solid var(--dmart-green);
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-dmart:hover, .btn-dmart:focus {
+  background-color: var(--dmart-green-dark);
+  color: #ffffff;
+  border-color: var(--dmart-green-dark);
+  box-shadow: 0 4px 12px rgba(0, 132, 61, 0.25);
+}
+
+.btn-outline-dmart {
+  color: var(--dmart-green);
+  border: 1.5px solid var(--dmart-green);
+  background-color: transparent;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-outline-dmart:hover {
+  background-color: var(--dmart-green);
+  color: #ffffff;
+}
+
+/* Top bar styles */
+.top-bar {
+  background-color: #1b2e23;
+  color: #d1e7dd;
+  font-size: 0.85rem;
+}
+
+/* Navbar branding */
+.navbar-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.dmart-logo-badge {
+  background-color: #ffffff;
+  color: var(--dmart-green);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 900;
+}
+
+/* Category Navigation Pills */
+.category-pill {
+  border-radius: 20px;
+  padding: 8px 16px;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #495057;
+  background-color: #ffffff;
+  border: 1px solid var(--dmart-border);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.category-pill:hover {
+  border-color: var(--dmart-green);
+  color: var(--dmart-green);
+  transform: translateY(-1px);
+}
+
+.category-pill.active {
+  background-color: var(--dmart-green);
+  color: #ffffff;
+  border-color: var(--dmart-green);
+  box-shadow: 0 4px 10px rgba(0, 132, 61, 0.2);
+}
+
+/* Product Card Styling */
+.product-card {
+  border: 1px solid var(--dmart-border);
+  border-radius: 12px;
+  background: #ffffff;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.product-img-wrapper {
+  position: relative;
+  height: 180px;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.product-img-wrapper img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-img-wrapper img {
+  transform: scale(1.06);
+}
+
+.badge-discount {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: linear-gradient(135deg, #e65100 0%, #ff9800 100%);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  transition: all 0.2s ease;
+}
+
+.wishlist-btn:hover, .wishlist-btn.active {
+  color: var(--dmart-red);
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.mrp-strike {
+  text-decoration: line-through;
+  color: #8c98a4;
+  font-size: 0.85rem;
+}
+
+.dmart-price {
+  color: var(--dmart-green-dark);
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.savings-tag {
+  color: var(--dmart-green);
+  font-size: 0.8rem;
+  font-weight: 700;
+  background-color: var(--dmart-green-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Quantity Stepper */
+.qty-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--dmart-green);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.qty-stepper button {
+  background: transparent;
+  border: none;
+  color: var(--dmart-green);
+  font-weight: bold;
+  padding: 4px 12px;
+  transition: background 0.15s;
+}
+
+.qty-stepper button:hover {
+  background-color: var(--dmart-green-light);
+}
+
+.qty-stepper span {
+  padding: 0 8px;
+  font-weight: 700;
+  color: var(--dmart-text-dark);
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Cart Offcanvas Drawer */
+.cart-offcanvas {
+  width: 420px !important;
+  max-width: 100vw;
+}
+
+.savings-banner {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* Quick view modal custom */
+.quick-view-modal .modal-content {
+  border-radius: 16px;
+  overflow: hidden;
+  border: none;
+}
+
+/* Sticky Category Header */
+.category-nav-wrapper {
+  position: sticky;
+  top: 72px;
+  z-index: 1020;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Search suggestions box */
+.search-results-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  z-index: 1050;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.search-item-hover:hover {
+  background-color: #f8f9fa;
+}
