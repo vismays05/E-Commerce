@@ -6,11 +6,13 @@ const CartDrawer = ({
   cartItems,
   onUpdateQuantity,
   onRemoveItem,
-  onProceedToCheckout
+  onProceedToCheckout,
+  discountAmount,
+  setDiscountAmount
 }) => {
   const [couponCode, setCouponCode] = useState('');
-  const [discountAmount, setDiscountAmount] = useState(0);
   const [couponApplied, setCouponApplied] = useState(false);
+  const [appliedCodeName, setAppliedCodeName] = useState('');
   const [couponError, setCouponError] = useState('');
 
   if (!isOpen) return null;
@@ -22,28 +24,67 @@ const CartDrawer = ({
 
   // Free delivery threshold ₹500
   const freeDeliveryThreshold = 500;
-  const deliveryFee = totalDmartPrice >= freeDeliveryThreshold ? 0 : 49;
+  const deliveryFee = (totalDmartPrice >= freeDeliveryThreshold || appliedCodeName === 'FREESHIP') ? 0 : 49;
   const amountNeededForFreeDelivery = Math.max(0, freeDeliveryThreshold - totalDmartPrice);
   const progressPercent = Math.min(100, (totalDmartPrice / freeDeliveryThreshold) * 100);
 
-  const handleApplyCoupon = (e) => {
-    e.preventDefault();
-    if (couponCode.toUpperCase() === 'DMART50') {
+  const applyCode = (code) => {
+    const cleanCode = code.trim().toUpperCase();
+    if (cleanCode === 'DMART50') {
       setDiscountAmount(50);
       setCouponApplied(true);
+      setAppliedCodeName('DMART50');
       setCouponError('');
-    } else if (couponCode.toUpperCase() === 'DMART100') {
+      setCouponCode('DMART50');
+    } else if (cleanCode === 'DMART100') {
       setDiscountAmount(100);
       setCouponApplied(true);
+      setAppliedCodeName('DMART100');
       setCouponError('');
+      setCouponCode('DMART100');
+    } else if (cleanCode === 'FREESHIP') {
+      setDiscountAmount(0);
+      setCouponApplied(true);
+      setAppliedCodeName('FREESHIP');
+      setCouponError('');
+      setCouponCode('FREESHIP');
+    } else if (cleanCode === 'FIRST10') {
+      const tenPercent = Math.round(totalDmartPrice * 0.1);
+      setDiscountAmount(tenPercent);
+      setCouponApplied(true);
+      setAppliedCodeName('FIRST10');
+      setCouponError('');
+      setCouponCode('FIRST10');
     } else {
-      setCouponError('Invalid Coupon Code! Try DMART50 or DMART100');
+      setCouponError('Invalid code! Try DMART50, DMART100, FREESHIP, or FIRST10');
     }
   };
 
+  const handleApplyCoupon = (e) => {
+    e.preventDefault();
+    if (!couponCode.trim()) {
+      setCouponError('Please enter a coupon code.');
+      return;
+    }
+    applyCode(couponCode);
+  };
+
+  const handleRemoveCoupon = () => {
+    setDiscountAmount(0);
+    setCouponApplied(false);
+    setAppliedCodeName('');
+    setCouponCode('');
+    setCouponError('');
+  };
+
   return (
-    <div className="offcanvas offcanvas-end show d-block cart-offcanvas shadow-lg" tabIndex="-1" style={{ backgroundColor: '#ffffff', zIndex: 1055 }}>
-      <div className="offcanvas-header bg-dmart text-white p-3">
+    <div 
+      className="offcanvas offcanvas-end show d-flex flex-column cart-offcanvas shadow-lg position-fixed top-0 end-0 h-100" 
+      tabIndex="-1" 
+      style={{ backgroundColor: '#ffffff', zIndex: 1055, width: '420px', maxWidth: '100vw' }}
+    >
+      {/* Drawer Header */}
+      <div className="offcanvas-header bg-dmart text-white p-3 flex-shrink-0">
         <div className="d-flex align-items-center gap-2">
           <i className="bi bi-cart-check-fill fs-4 text-warning"></i>
           <h5 className="offcanvas-title fw-bold m-0">Your DMart Cart ({cartItems.length})</h5>
@@ -51,7 +92,8 @@ const CartDrawer = ({
         <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
       </div>
 
-      <div className="offcanvas-body p-3 d-flex flex-column" style={{ height: 'calc(100vh - 180px)', overflowY: 'auto' }}>
+      {/* Drawer Scrollable Body */}
+      <div className="offcanvas-body p-3 flex-grow-1 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
         {/* Free Delivery Bar */}
         {cartItems.length > 0 && (
           <div className="p-3 mb-3 bg-light rounded-3 border">
@@ -77,7 +119,7 @@ const CartDrawer = ({
 
         {/* Cart Item List */}
         {cartItems.length > 0 ? (
-          <div className="flex-grow-1">
+          <div>
             {cartItems.map((item) => (
               <div key={`${item.id}-${item.selectedWeight}`} className="card mb-3 border-0 shadow-sm bg-light">
                 <div className="card-body p-2.5 d-flex gap-3 align-items-center">
@@ -121,29 +163,84 @@ const CartDrawer = ({
               </div>
             ))}
 
-            {/* Promo Code Input */}
+            {/* Promo Code Input & Quick Coupon Chips */}
             <div className="mt-3 p-3 bg-light rounded-3 border">
-              <label className="form-label fw-bold small text-muted mb-2">Apply Promo / Coupon Code:</label>
-              <form onSubmit={handleApplyCoupon} className="d-flex gap-2">
-                <input
-                  type="text"
-                  className="form-control form-control-sm text-uppercase fw-bold"
-                  placeholder="Try DMART50"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                />
-                <button type="submit" className="btn btn-dmart btn-sm fw-bold px-3">
-                  Apply
+              <label className="form-label fw-bold small text-muted mb-1 d-flex align-items-center gap-1">
+                <i className="bi bi-tags-fill text-warning"></i> DMart Promo & Coupon Codes:
+              </label>
+
+              {/* Quick Coupon Chips */}
+              <div className="d-flex flex-wrap gap-1.5 mb-2">
+                <button
+                  type="button"
+                  className={`btn btn-xs ${appliedCodeName === 'DMART50' ? 'btn-success' : 'btn-outline-success'} fw-bold py-1 px-2`}
+                  style={{ fontSize: '0.75rem' }}
+                  onClick={() => applyCode('DMART50')}
+                >
+                  DMART50 (₹50 OFF)
                 </button>
-              </form>
-              {couponApplied && (
-                <div className="text-success small fw-bold mt-1">
-                  <i className="bi bi-check-circle-fill me-1"></i> ₹{discountAmount} Discount Applied!
+                <button
+                  type="button"
+                  className={`btn btn-xs ${appliedCodeName === 'DMART100' ? 'btn-success' : 'btn-outline-success'} fw-bold py-1 px-2`}
+                  style={{ fontSize: '0.75rem' }}
+                  onClick={() => applyCode('DMART100')}
+                >
+                  DMART100 (₹100 OFF)
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn-xs ${appliedCodeName === 'FIRST10' ? 'btn-success' : 'btn-outline-primary'} fw-bold py-1 px-2`}
+                  style={{ fontSize: '0.75rem' }}
+                  onClick={() => applyCode('FIRST10')}
+                >
+                  FIRST10 (10% OFF)
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn-xs ${appliedCodeName === 'FREESHIP' ? 'btn-success' : 'btn-outline-warning text-dark'} fw-bold py-1 px-2`}
+                  style={{ fontSize: '0.75rem' }}
+                  onClick={() => applyCode('FREESHIP')}
+                >
+                  FREESHIP (Free Delivery)
+                </button>
+              </div>
+
+              {couponApplied ? (
+                <div className="d-flex align-items-center justify-content-between bg-success bg-opacity-10 border border-success p-2 rounded">
+                  <div className="d-flex align-items-center gap-2">
+                    <i className="bi bi-patch-check-fill text-success fs-5"></i>
+                    <div>
+                      <div className="fw-bold text-success small">Code '{appliedCodeName}' Applied!</div>
+                      <div className="small text-muted" style={{ fontSize: '0.72rem' }}>
+                        {appliedCodeName === 'FREESHIP' ? 'Free Shipping Unlocked' : `Extra ₹${discountAmount} Discount`}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    className="btn btn-sm btn-link text-danger text-decoration-none fw-bold p-0"
+                    onClick={handleRemoveCoupon}
+                  >
+                    Remove
+                  </button>
                 </div>
+              ) : (
+                <form onSubmit={handleApplyCoupon} className="d-flex gap-2">
+                  <input
+                    type="text"
+                    className="form-control form-control-sm text-uppercase fw-bold"
+                    placeholder="Enter Coupon Code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                  />
+                  <button type="submit" className="btn btn-dmart btn-sm fw-bold px-3">
+                    Apply
+                  </button>
+                </form>
               )}
+
               {couponError && (
-                <div className="text-danger small fw-bold mt-1">
-                  <i className="bi bi-exclamation-circle-fill me-1"></i> {couponError}
+                <div className="text-danger small fw-bold mt-2 d-flex align-items-center gap-1">
+                  <i className="bi bi-exclamation-circle-fill"></i> {couponError}
                 </div>
               )}
             </div>
@@ -162,7 +259,7 @@ const CartDrawer = ({
 
       {/* Cart Summary Footer */}
       {cartItems.length > 0 && (
-        <div className="offcanvas-footer p-3 border-top bg-light">
+        <div className="offcanvas-footer p-3 border-top bg-light flex-shrink-0">
           <div className="savings-banner mb-3 py-2 text-center">
             <span className="fw-bold text-success">
               🎉 Total DMart Savings on this order: <strong>₹{totalSavings + discountAmount}</strong>
@@ -177,9 +274,9 @@ const CartDrawer = ({
             <span>DMart Subtotal:</span>
             <span className="fw-bold text-dark">₹{totalDmartPrice}</span>
           </div>
-          {couponApplied && (
+          {couponApplied && discountAmount > 0 && (
             <div className="d-flex justify-content-between small text-success mb-1">
-              <span>Coupon Discount:</span>
+              <span>Coupon Discount ('{appliedCodeName}'):</span>
               <span className="fw-bold">- ₹{discountAmount}</span>
             </div>
           )}

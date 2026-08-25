@@ -131,6 +131,8 @@ function App() {
 
   const selectedCategoryObj = categories.find(c => c.id === selectedCategory);
 
+  const [discountAmount, setDiscountAmount] = useState(0);
+
   return (
     <div className="d-flex flex-column min-vh-100 bg-light">
       {/* Top Bar for location and delivery mode */}
@@ -204,6 +206,8 @@ function App() {
         cartItems={cart}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveFromCart}
+        discountAmount={discountAmount}
+        setDiscountAmount={setDiscountAmount}
         onProceedToCheckout={() => {
           setIsCartOpen(false);
           setIsCheckoutOpen(true);

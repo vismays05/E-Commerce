@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { api } from '../services/api';
 
 const RegisterModal = ({ isOpen, onClose, onRegisterSuccess, onLoginSuccess }) => {
   if (!isOpen) return null;
@@ -21,7 +22,13 @@ const RegisterModal = ({ isOpen, onClose, onRegisterSuccess, onLoginSuccess }) =
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleRegisterSubmit = (e) => {
+  const handleQuickFillDemo = (demoMobile, demoPassword) => {
+    setLoginMobile(demoMobile);
+    setLoginPassword(demoPassword);
+    setError('');
+  };
+
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -51,18 +58,18 @@ const RegisterModal = ({ isOpen, onClose, onRegisterSuccess, onLoginSuccess }) =
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      onRegisterSuccess({
-        fullName,
-        mobile,
-        email
-      });
+    const result = await api.register({ fullName, mobile, email, password });
+    setIsSubmitting(false);
+
+    if (result.success) {
+      onRegisterSuccess(result.user || { fullName, mobile, email });
       onClose();
-    }, 1000);
+    } else {
+      setError(result.message || 'Registration failed.');
+    }
   };
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -76,15 +83,15 @@ const RegisterModal = ({ isOpen, onClose, onRegisterSuccess, onLoginSuccess }) =
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      onLoginSuccess({
-        fullName: 'Rohan Sharma',
-        mobile: loginMobile,
-        email: 'rohan.sharma@example.com'
-      });
+    const result = await api.login({ mobile: loginMobile, password: loginPassword });
+    setIsSubmitting(false);
+
+    if (result.success) {
+      onLoginSuccess(result.user || { fullName: 'Rohan Sharma', mobile: loginMobile, email: 'rohan.sharma@example.com' });
       onClose();
-    }, 1000);
+    } else {
+      setError(result.message || 'Sign in failed.');
+    }
   };
 
   return (
@@ -222,48 +229,78 @@ const RegisterModal = ({ isOpen, onClose, onRegisterSuccess, onLoginSuccess }) =
 
             {/* TAB 2: LOGIN FORM */}
             {activeTab === 'login' && (
-              <form onSubmit={handleLoginSubmit}>
-                <div className="mb-3">
-                  <label className="form-label small fw-bold text-muted">Registered Mobile Number *</label>
-                  <div className="input-group">
-                    <span className="input-group-text bg-light text-muted">+91</span>
-                    <input
-                      type="tel"
-                      className="form-control"
-                      placeholder="9876543210"
-                      maxLength="10"
-                      value={loginMobile}
-                      onChange={(e) => setLoginMobile(e.target.value)}
-                    />
+              <div>
+                {/* Pre-seeded demo account quick fill banner */}
+                <div className="p-2.5 mb-3 bg-light rounded-3 border">
+                  <div className="small fw-bold text-muted mb-2">⚡ Quick Fill Demo Accounts:</div>
+                  <div className="d-flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-success fw-bold"
+                      onClick={() => handleQuickFillDemo('9876543210', 'password123')}
+                    >
+                      Rohan (9876543210)
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-primary fw-bold"
+                      onClick={() => handleQuickFillDemo('9123456789', 'dmartpass')}
+                    >
+                      Priya (9123456789)
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-dark fw-bold"
+                      onClick={() => handleQuickFillDemo('9988776655', 'admin123')}
+                    >
+                      Amit (9988776655)
+                    </button>
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <label className="form-label small fw-bold text-muted">Password *</label>
-                  <div className="input-group">
-                    <span className="input-group-text bg-light text-muted"><i className="bi bi-key-fill"></i></span>
-                    <input
-                      type="password"
-                      className="form-control"
-                      placeholder="Enter your password"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                    />
+                <form onSubmit={handleLoginSubmit}>
+                  <div className="mb-3">
+                    <label className="form-label small fw-bold text-muted">Registered Mobile Number *</label>
+                    <div className="input-group">
+                      <span className="input-group-text bg-light text-muted">+91</span>
+                      <input
+                        type="tel"
+                        className="form-control"
+                        placeholder="9876543210"
+                        maxLength="10"
+                        value={loginMobile}
+                        onChange={(e) => setLoginMobile(e.target.value)}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  className="btn btn-dmart btn-lg w-100 fw-black shadow-sm"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <span><span className="spinner-border spinner-border-sm me-2"></span>Signing In...</span>
-                  ) : (
-                    <span>SIGN IN TO DMART</span>
-                  )}
-                </button>
-              </form>
+                  <div className="mb-4">
+                    <label className="form-label small fw-bold text-muted">Password *</label>
+                    <div className="input-group">
+                      <span className="input-group-text bg-light text-muted"><i className="bi bi-key-fill"></i></span>
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="Enter your password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn btn-dmart btn-lg w-100 fw-black shadow-sm"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <span><span className="spinner-border spinner-border-sm me-2"></span>Signing In...</span>
+                    ) : (
+                      <span>SIGN IN TO DMART</span>
+                    )}
+                  </button>
+                </form>
+              </div>
             )}
           </div>
         </div>

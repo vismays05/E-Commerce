@@ -240,10 +240,28 @@ body {
   text-align: center;
 }
 
-/* Cart Offcanvas Drawer */
+/* Cart Offcanvas Drawer Flexbox Scrolling Fix */
 .cart-offcanvas {
   width: 420px !important;
   max-width: 100vw;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+}
+
+.cart-offcanvas .offcanvas-body {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+}
+
+.cart-offcanvas .offcanvas-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cart-offcanvas .offcanvas-body::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
 }
 
 .savings-banner {
