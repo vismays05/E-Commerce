@@ -1,0 +1,254 @@
+{
+	"info": {
+		"_postman_id": "dmart-ecommerce-api-collection",
+		"name": "DMart E-Commerce REST API Collection",
+		"description": "Complete Postman collection for testing DMart E-Commerce REST APIs (Products CRUD, Categories, Orders, User Auth, Cart, Wishlist).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/",
+					"host": ["{{base_url}}"],
+					"path": [""]
+				}
+			}
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get Products Catalog",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products?category=grocery&sortBy=price-low",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products"],
+							"query": [
+								{ "key": "category", "value": "grocery" },
+								{ "key": "sortBy", "value": "price-low" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Auto-Complete Suggestions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/search/suggestions?q=oil",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products", "search", "suggestions"],
+							"query": [{ "key": "q", "value": "oil" }]
+						}
+					}
+				},
+				{
+					"name": "Get Single Product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Product",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"DMart Premium Basmati Rice\",\n  \"category\": \"grocery\",\n  \"brand\": \"DMart Select\",\n  \"weightOptions\": [\"5 kg\", \"10 kg\"],\n  \"price\": 499,\n  \"mrp\": 650,\n  \"rating\": 4.8,\n  \"reviewsCount\": 120,\n  \"expressDelivery\": true,\n  \"inStock\": true,\n  \"description\": \"Long grain premium aromatic basmati rice\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products"]
+						}
+					}
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"price\": 475,\n  \"inStock\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "User Auth",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Rohan Sharma\",\n  \"mobile\": \"9876543210\",\n  \"email\": \"rohan@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"mobile\": \"9876543210\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get User Directory",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "users"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Fetch Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/orders",
+							"host": ["{{base_url}}"],
+							"path": ["api", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Place New Order",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"items\": [\n    {\n      \"id\": 1,\n      \"name\": \"Sunflower Oil 1L\",\n      \"price\": 145,\n      \"mrp\": 175,\n      \"selectedWeight\": \"1 L\",\n      \"quantity\": 2\n    }\n  ],\n  \"pincode\": \"400001\",\n  \"slot\": \"express\",\n  \"paymentMethod\": \"upi\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/orders",
+							"host": ["{{base_url}}"],
+							"path": ["api", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Update Order Status",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"Out for Delivery\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/orders/DMART-879412/status",
+							"host": ["{{base_url}}"],
+							"path": ["api", "orders", "DMART-879412", "status"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cart & Wishlist",
+			"item": [
+				{
+					"name": "Sync User Cart",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"items\": [\n    { \"id\": 1, \"selectedWeight\": \"5 kg\", \"quantity\": 1 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/cart/USR-1001",
+							"host": ["{{base_url}}"],
+							"path": ["api", "cart", "USR-1001"]
+						}
+					}
+				},
+				{
+					"name": "Sync User Wishlist",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"items\": [1, 5, 8]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/wishlist/USR-1001",
+							"host": ["{{base_url}}"],
+							"path": ["api", "wishlist", "USR-1001"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	]
+}

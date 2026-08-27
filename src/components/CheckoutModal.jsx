@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { api } from '../services/api';
 
 const CheckoutModal = ({
   isOpen,
@@ -19,24 +20,32 @@ const CheckoutModal = ({
   const totalDmartPrice = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const totalSavings = cartItems.reduce((acc, item) => acc + ((item.mrp - item.price) * item.quantity), 0);
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     setIsProcessing(true);
-    setTimeout(() => {
-      const orderId = 'DMART-' + Math.floor(100000 + Math.random() * 900000);
-      setPlacedOrderId(orderId);
-      setIsProcessing(false);
-      setStep(4);
-      onOrderComplete({
-        id: orderId,
-        date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-        items: cartItems,
-        total: totalDmartPrice,
-        savings: totalSavings,
-        status: 'Order Placed & Packed',
-        slot: selectedSlot === 'express' ? 'Express 2-Hour Delivery' : 'Tomorrow Morning (8 AM - 11 AM)'
-      });
-    }, 1500);
+    const orderPayload = {
+      items: cartItems,
+      pincode: pincode || '400001',
+      slot: selectedSlot,
+      paymentMethod: paymentMethod
+    };
+
+    const res = await api.placeOrder(orderPayload);
+    const orderData = (res && res.success && res.data) ? res.data : {
+      id: 'DMART-' + Math.floor(100000 + Math.random() * 900000),
+      date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      items: cartItems,
+      total: totalDmartPrice,
+      savings: totalSavings,
+      status: 'Order Placed & Packed',
+      slot: selectedSlot === 'express' ? 'Express 2-Hour Delivery' : 'Tomorrow Morning (8 AM - 11 AM)'
+    };
+
+    setPlacedOrderId(orderData.id);
+    setIsProcessing(false);
+    setStep(4);
+    onOrderComplete(orderData);
   };
+
 
   return (
     <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.75)', zIndex: 1060 }}>

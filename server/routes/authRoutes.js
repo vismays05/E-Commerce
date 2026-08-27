@@ -139,4 +139,28 @@ router.post('/login', async (req, res) => {
   });
 });
 
+// GET /api/auth/profile/:id - Fetch user profile by ID
+router.get('/profile/:id', async (req, res) => {
+  const userId = req.params.id;
+
+  if (mongoose.connection.readyState === 1) {
+    try {
+      const user = await User.findOne({ id: userId }, '-password').lean();
+      if (user) {
+        return res.json({ success: true, source: 'MongoDB Atlas', data: user });
+      }
+    } catch (err) {
+      console.warn('MongoDB profile lookup failed:', err.message);
+    }
+  }
+
+  const user = db.prepare('SELECT id, fullName, mobile, email, createdAt FROM users WHERE id = ?').get(userId);
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'User account not found.' });
+  }
+
+  res.json({ success: true, source: 'SQLite', data: user });
+});
+
 export default router;
+

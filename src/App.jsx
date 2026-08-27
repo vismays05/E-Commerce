@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TopBar from './components/TopBar';
 import NavBar from './components/NavBar';
 import CategoryBar from './components/CategoryBar';
@@ -10,11 +10,13 @@ import CheckoutModal from './components/CheckoutModal';
 import OrdersModal from './components/OrdersModal';
 import PincodeModal from './components/PincodeModal';
 import RegisterModal from './components/RegisterModal';
+import AdminModal from './components/AdminModal';
 import Footer from './components/Footer';
 import { initialProducts, categories, heroBanners } from './data/products';
+import { api } from './services/api';
 
 function App() {
-  const [products] = useState(initialProducts);
+  const [products, setProducts] = useState(initialProducts);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [pincode, setPincode] = useState('400001');
@@ -49,7 +51,33 @@ function App() {
   const [isPincodeOpen, setIsPincodeOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
+
+  // Load products, orders & wishlist from Live Backend API if available
+  useEffect(() => {
+    async function loadData() {
+      // Load Products
+      const liveProducts = await api.getProducts();
+      if (liveProducts && liveProducts.length > 0) {
+        setProducts(liveProducts);
+      }
+
+      // Load Orders
+      const liveOrders = await api.getOrders();
+      if (liveOrders && liveOrders.length > 0) {
+        setOrders(liveOrders);
+      }
+
+      // Load Wishlist
+      const liveWishlist = await api.getWishlist('USR-1001');
+      if (liveWishlist && Array.isArray(liveWishlist) && liveWishlist.length > 0) {
+        setWishlist(liveWishlist);
+      }
+    }
+    loadData();
+  }, []);
+
 
   // Cart Calculations
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -86,9 +114,11 @@ function App() {
 
   // Wishlist Handler
   const handleToggleWishlist = (productId) => {
-    setWishlist((prev) =>
-      prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
-    );
+    setWishlist((prev) => {
+      const updated = prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId];
+      api.syncWishlist('USR-1001', updated);
+      return updated;
+    });
   };
 
   // Order Complete Handler
@@ -159,6 +189,7 @@ function App() {
         onOpenOrders={() => setIsOrdersOpen(true)}
         onOpenPincodeModal={() => setIsPincodeOpen(true)}
         onOpenRegisterModal={() => setIsRegisterOpen(true)}
+        onOpenAdminModal={() => setIsAdminOpen(true)}
         userProfile={userProfile}
         onLogout={handleLogout}
         pincode={pincode}
@@ -251,6 +282,15 @@ function App() {
         onClose={() => setIsRegisterOpen(false)}
         onRegisterSuccess={handleRegisterSuccess}
         onLoginSuccess={handleLoginSuccess}
+      />
+
+      <AdminModal
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+        products={products}
+        onProductsUpdated={(p) => setProducts(p)}
+        orders={orders}
+        onOrdersUpdated={(o) => setOrders(o)}
       />
     </div>
   );

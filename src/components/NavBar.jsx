@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../services/api';
 
 const NavBar = ({
   searchQuery,
@@ -13,20 +14,42 @@ const NavBar = ({
   onOpenOrders,
   onOpenPincodeModal,
   onOpenRegisterModal,
+  onOpenAdminModal,
   userProfile,
   onLogout,
   pincode,
   products
 }) => {
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [apiSuggestions, setApiSuggestions] = useState([]);
 
-  const filteredSuggestions = searchQuery.trim() === ''
-    ? []
-    : products.filter(p => 
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.brand.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 5);
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setApiSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      const suggestions = await api.getSuggestions(searchQuery);
+      if (suggestions && suggestions.length > 0) {
+        setApiSuggestions(suggestions);
+      } else {
+        // Fallback to local filter
+        setApiSuggestions(
+          products.filter(p =>
+            p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.brand.toLowerCase().includes(searchQuery.toLowerCase())
+          ).slice(0, 5)
+        );
+      }
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, products]);
+
+  const filteredSuggestions = apiSuggestions;
+
 
   return (
     <nav className="navbar navbar-expand-lg bg-dmart navbar-dark sticky-top shadow-sm py-2">
@@ -187,6 +210,16 @@ const NavBar = ({
             <span className="d-none d-lg-inline small ms-1">Wishlist</span>
           </button>
 
+          {/* Admin Panel Button */}
+          <button
+            className="btn btn-outline-warning border-0 d-flex align-items-center gap-1 text-warning"
+            onClick={onOpenAdminModal}
+            title="Admin & Seller Panel"
+          >
+            <i className="bi bi-person-workspace fs-5"></i>
+            <span className="d-none d-lg-inline small fw-bold">Admin</span>
+          </button>
+
           {/* My Orders Button */}
           <button
             className="btn btn-outline-light border-0 d-flex align-items-center gap-1"
@@ -196,6 +229,7 @@ const NavBar = ({
             <i className="bi bi-bag-check-fill fs-5 text-warning"></i>
             <span className="d-none d-lg-inline small ms-1">Orders</span>
           </button>
+
 
           {/* Cart Drawer Trigger Button */}
           <button
